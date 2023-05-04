@@ -20,13 +20,13 @@ data_url= "https://gist.githubusercontent.com/florianeichin/cfa1705e12ebd75ff4c3
 data = pd.read_csv(data_url)
 
 with st.sidebar:
-    nav_menu = option_menu("Main Menu", ["Dashboard", "Query Analyzer", 'Raw Data'], 
+    nav_menu = option_menu("Main Menu", ["Dashboard", "Map Analyzer", 'Raw Data'], 
         icons=['clipboard-data', 'map', 'gear'], menu_icon="cast", default_index=0)
 
 if nav_menu == "Dashboard":
     st.header("Dashboard")
 
-elif nav_menu == "Query Analyzer":
+elif nav_menu == "Map Analyzer":
     st.header("Data exploration with map")
 
     chart_data = pd.DataFrame(
