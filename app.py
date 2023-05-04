@@ -50,7 +50,7 @@ if nav_menu == "Dashboard":
     with col_average_delay_time:
         card(
             title=round(ave_delay_time, 2),
-            text="Average delay in Miniuts",
+            text="Average Departure Delay in Miniuts",
         )
 
     with col_max_trip:
