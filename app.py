@@ -4,8 +4,10 @@ import pydeck as pdk
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
+import json
 import altair as alt
 from ipyvizzu import Chart, Data, Config, Style
+from streamlit_card import card
 from streamlit_option_menu import option_menu
 
 st.set_page_config(layout="wide")
@@ -34,6 +36,29 @@ with st.sidebar:
 if nav_menu == "Dashboard":
     st.header("Dashboard")
 
+    col_flight, col_average_delay_time, col_max_trip = st.columns(3)
+    no_flight = data.shape[0]
+    ave_delay_time = data['DEPARTURE_DELAY'].mean()
+    max_frequency=data['AIRLINE'].value_counts().idxmax()
+    
+    with col_flight:
+        card(
+            title=no_flight,
+            text="Total no. Flight",
+        )
+
+    with col_average_delay_time:
+        card(
+            title=round(ave_delay_time, 2),
+            text="Average delay in Miniuts",
+        )
+
+    with col_max_trip:
+        card(
+            title=max_frequency,
+            text="Top flight Operator"
+        )
+
     col_barChart, col_scat_chart = st.columns(2)
 
     with col_barChart:
@@ -46,17 +71,13 @@ if nav_menu == "Dashboard":
             x='DISTANCE',
             y='ELAPSED_TIME',
             color='AIRLINE',
-            tooltip=['AIRLINE', 'ORIGIN_AIRPORT', 'ELAPSED_TIME', 'DISTANCE']
+            tooltip=['AIRLINE', 'ORIGIN_AIRPORT', 'ELAPSED_TIME', 'FLIGHT_NUMBER', 'DISTANCE']
         ).interactive()
         st.altair_chart(chart, theme="streamlit", use_container_width=True)
         #st.line_chart(['DEPARTURE_DELAY', 'AIRLINE'])
 
 elif nav_menu == "Map Analyzer":
     st.header("Data exploration with map")
-
-    chart_data = pd.DataFrame(
-    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-    columns=['lat', 'lon'])
 
     GREEN_RGB = [0, 255, 0, 0]
     RED_RGB = [250, 100, 0, 40]
