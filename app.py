@@ -3,7 +3,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 import altair as alt
-from streamlit_card import card
+#from streamlit_card import card
 from streamlit_option_menu import option_menu
 
 st.set_page_config(layout="wide")
@@ -36,24 +36,33 @@ if nav_menu == "Dashboard":
     no_flight = data.shape[0]
     ave_delay_time = round(data['DEPARTURE_DELAY'].mean(), 2)
     max_frequency=data['AIRLINE'].value_counts().idxmax()
+
+    st.markdown(
+    """
+    <style>
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
+    overflow-wrap: break-word;
+    white-space: break-spaces;
+    color: Black;
+    }
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div p {
+    font-size: 130% !important;
+    font-family:sans-serif;
+    }
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
     
+
     with col_flight:
-        card(
-            title=no_flight,
-            text="Total no. of Flights",
-        )
+        st.metric(label="Total no. of flights:airplane_departure:", value=no_flight)
 
     with col_average_delay_time:
-        card(
-            title=ave_delay_time,
-            text="Average Departure Delay in Miniuts",
-       )
-
+        st.metric(label="Avg. departure delay in min.:hourglass_flowing_sand:", value=ave_delay_time)
+    
     with col_max_trip:
-        card(
-            title=max_frequency,
-            text="Top flight Operator",
-        )
+        st.metric(label="Top flight Operator:male-pilot:", value=max_frequency)
 
     col_barChart, col_scat_chart = st.columns(2)
 
