@@ -40,7 +40,7 @@ if nav_menu == "Dashboard":
     with col_flight:
         card(
             title=no_flight,
-            text="Total no. Flight",
+            text="Total no. Flights",
         )
 
     with col_average_delay_time:
