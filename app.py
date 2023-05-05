@@ -2,11 +2,7 @@ import numpy as np
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
-import matplotlib.pyplot as plt
-import plotly.express as px
-import json
 import altair as alt
-from ipyvizzu import Chart, Data, Config, Style
 from streamlit_card import card
 from streamlit_option_menu import option_menu
 
@@ -38,7 +34,7 @@ if nav_menu == "Dashboard":
 
     col_flight, col_average_delay_time, col_max_trip = st.columns(3)
     no_flight = data.shape[0]
-    ave_delay_time = data['DEPARTURE_DELAY'].mean()
+    ave_delay_time = round(data['DEPARTURE_DELAY'].mean(), 2)
     max_frequency=data['AIRLINE'].value_counts().idxmax()
     
     with col_flight:
@@ -49,9 +45,9 @@ if nav_menu == "Dashboard":
 
     with col_average_delay_time:
         card(
-            title=round(ave_delay_time, 2),
+            title=ave_delay_time,
             text="Average Departure Delay in Miniuts",
-        )
+       )
 
     with col_max_trip:
         card(
