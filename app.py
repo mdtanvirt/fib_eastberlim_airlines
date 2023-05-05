@@ -52,7 +52,7 @@ if nav_menu == "Dashboard":
     with col_max_trip:
         card(
             title=max_frequency,
-            text="Top flight Operator"
+            text="Top flight Operator",
         )
 
     col_barChart, col_scat_chart = st.columns(2)
