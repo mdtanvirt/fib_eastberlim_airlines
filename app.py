@@ -173,18 +173,38 @@ elif nav_menu == "Map Analyzer":
         st.dataframe(max_frequency_distination_port, use_container_width=True) 
 
 elif nav_menu == "Raw Data":
-    st.header("Raw data")
-    st.dataframe(data)
 
-    @st.cache_data
-    def convert_df(data):
-        return data.to_csv().encode('utf-8')
-    
-    csv = convert_df(data)
+    # Data filtering options
+    is_enable_filter = st.sidebar.checkbox('Enable filter')
+    if is_enable_filter:
+        select_one = st.sidebar.radio("Select any one",('Origin Airport', 'Destination Airport'))
+        if select_one == 'Origin Airport':
+            options_origin = data['ORIGIN_AIRPORT'].unique().tolist()
+            selected_options_origin = st.sidebar.multiselect('Select Origin Airport',options_origin)
 
-    st.download_button(
-        label='Download Data',
-        data=csv,
-        file_name='raw.csv',
-        mime='text/csv',
-    )
+            filtered_df_origin = data[data["ORIGIN_AIRPORT"].isin(selected_options_origin)]
+            st.dataframe(filtered_df_origin)
+
+        if select_one == 'Destination Airport':
+            options_destination = data['DESTINATION_AIRPORT'].unique().tolist()
+            selected_options_destination = st.sidebar.multiselect('Select Destination Airport',options_destination)
+
+            filtered_df_destination = data[data["DESTINATION_AIRPORT"].isin(selected_options_destination)]
+            st.dataframe(filtered_df_destination)
+
+    else:
+        st.header("Raw data")
+        st.dataframe(data)
+
+        @st.cache_data
+        def convert_df(data):
+            return data.to_csv().encode('utf-8')
+        
+        csv = convert_df(data)
+
+        st.download_button(
+            label='Download Data',
+            data=csv,
+            file_name='raw.csv',
+            mime='text/csv',
+        )
