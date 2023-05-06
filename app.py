@@ -81,7 +81,7 @@ if nav_menu == "Dashboard":
             x='DISTANCE',
             y='ELAPSED_TIME',
             color='AIRLINE',
-            tooltip=['AIRLINE', 'ORIGIN_AIRPORT', 'ELAPSED_TIME', 'FLIGHT_NUMBER', 'DISTANCE']
+            tooltip=['AIRLINE', 'ORIGIN_AIRPORT', 'ELAPSED_TIME', 'FLIGHT_NUMBER', 'DISTANCE', 'DESTINATION_AIRPORT']
         ).interactive()
         st.altair_chart(chart, theme="streamlit", use_container_width=True)
     
