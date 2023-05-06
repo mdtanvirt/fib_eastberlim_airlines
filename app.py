@@ -155,22 +155,22 @@ elif nav_menu == "Map Analyzer":
         ],
     ))
 
-    '''col_airline, col_origine_port, col_dist_port = st.columns(3)
+    col_airline, col_origine_port, col_dist_port = st.columns(3)
     
     with col_airline:
         st.subheader("Flights per airlins")
         max_frequency_airline=data['AIRLINE'].value_counts()
-        st.dataframe(max_frequency_airline)
+        st.dataframe(max_frequency_airline, use_container_width=True)
 
     with col_origine_port:
         st.subheader("Flights as per Origine Port")
         max_frequency_origin_port=data['ORIGIN_AIRPORT'].value_counts()
-        st.dataframe(max_frequency_origin_port)
+        st.dataframe(max_frequency_origin_port, use_container_width=True)
 
     with col_dist_port:
         st.subheader("Flights as per Destination Port")
         max_frequency_distination_port=data['DESTINATION_AIRPORT'].value_counts()
-        st.dataframe(max_frequency_distination_port)'''   
+        st.dataframe(max_frequency_distination_port, use_container_width=True) 
 
 elif nav_menu == "Raw Data":
     st.header("Raw data")
