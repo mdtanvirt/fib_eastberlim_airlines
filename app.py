@@ -64,10 +64,10 @@ if nav_menu == "Dashboard":
         st.metric(label="Avg. departure delay(min).:hourglass_flowing_sand:", value=ave_delay_time)
     
     with col_max_trip:
-        st.metric(label="Top flight Operator:male-pilot:", value=max_frequency)
+        st.metric(label="Top flight operator:male-pilot:", value=max_frequency)
 
     with col_busy_port:
-        st.metric(label="Most Busy Airport:office:", value=max_frequency_airpirt)
+        st.metric(label="Most busy airport:office:", value=max_frequency_airpirt)
 
     col_barChart, col_scat_chart = st.columns(2)
 
