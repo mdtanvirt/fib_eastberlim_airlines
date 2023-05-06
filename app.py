@@ -3,6 +3,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 import altair as alt
+import plotly.express as px
 #from streamlit_card import card
 from streamlit_option_menu import option_menu
 
@@ -30,12 +31,13 @@ with st.sidebar:
         icons=['clipboard-data', 'map', 'gear'], menu_icon="cast", default_index=0)
 
 if nav_menu == "Dashboard":
-    st.header("Dashboard")
+    #st.header("Dashboard")
 
-    col_flight, col_average_delay_time, col_max_trip = st.columns(3)
+    col_flight, col_average_delay_time, col_max_trip, col_busy_port = st.columns(4)
     no_flight = data.shape[0]
     ave_delay_time = round(data['DEPARTURE_DELAY'].mean(), 2)
     max_frequency=data['AIRLINE'].value_counts().idxmax()
+    max_frequency_airpirt=data['DESTINATION_AIRPORT'].value_counts().idxmax()
 
     st.markdown(
     """
@@ -59,10 +61,13 @@ if nav_menu == "Dashboard":
         st.metric(label="Total no. of flights:airplane_departure:", value=no_flight)
 
     with col_average_delay_time:
-        st.metric(label="Avg. departure delay in min.:hourglass_flowing_sand:", value=ave_delay_time)
+        st.metric(label="Avg. departure delay(min).:hourglass_flowing_sand:", value=ave_delay_time)
     
     with col_max_trip:
         st.metric(label="Top flight Operator:male-pilot:", value=max_frequency)
+
+    with col_busy_port:
+        st.metric(label="Most Busy Airport:office:", value=max_frequency_airpirt)
 
     col_barChart, col_scat_chart = st.columns(2)
 
@@ -79,7 +84,46 @@ if nav_menu == "Dashboard":
             tooltip=['AIRLINE', 'ORIGIN_AIRPORT', 'ELAPSED_TIME', 'FLIGHT_NUMBER', 'DISTANCE']
         ).interactive()
         st.altair_chart(chart, theme="streamlit", use_container_width=True)
-        #st.line_chart(['DEPARTURE_DELAY', 'AIRLINE'])
+    
+    col_delay_dpt, col_delay_dist = st.columns(2)
+
+    with col_delay_dpt:
+        st.write("Operation performance (Departure Delay)")
+        df_delay_dpt = data[(data['DEPARTURE_DELAY'] < 0)]
+        
+        line_chart_dpt = df_delay_dpt.copy()
+        line_chart_dpt['SCHEDULED_DEPARTURE'] = pd.to_datetime(line_chart_dpt['SCHEDULED_DEPARTURE'])
+        line_chart_dpt['DEPARTURE_HOUR'] = line_chart_dpt['SCHEDULED_DEPARTURE'].dt.hour
+
+        hours_cross_tbl = pd.crosstab(line_chart_dpt['DEPARTURE_HOUR'], line_chart_dpt['ORIGIN_AIRPORT'])
+        fig = px.line(hours_cross_tbl)
+        
+        fig.update_layout(
+            title="Time (Hour) vs Departure Delay (in Min)",
+            xaxis_title="Duration (in Hours)",
+            yaxis_title="Time delay for departure (in Minutes)",
+            legend_title="Airport",
+        )
+        st.write(fig)
+
+    with col_delay_dist:
+        st.write("Opetation performance (Destination Delay)")
+        df_delay_dist = data[(data['DESTINATION_DELAY'] < 0)]
+
+        line_chart_dist = df_delay_dist.copy()
+        line_chart_dist['SCHEDULED_DESTINATION'] = pd.to_datetime(line_chart_dist['SCHEDULED_DESTINATION'])
+        line_chart_dist['DESTINATION_HOUR'] = line_chart_dist['SCHEDULED_DESTINATION'].dt.hour
+
+        hours_cross_tbl_dist = pd.crosstab(line_chart_dist['DESTINATION_HOUR'], line_chart_dist['DESTINATION_AIRPORT'])
+        fig = px.line(hours_cross_tbl_dist)
+        
+        fig.update_layout(
+            title="Time (Hour) vs Destination Delay (in Min)",
+            xaxis_title="Duration (in Hours)",
+            yaxis_title="Time delay for arrival (in Minutes)",
+            legend_title="Airport",
+        )
+        st.write(fig)
 
 elif nav_menu == "Map Analyzer":
     st.header("Data exploration with map")
