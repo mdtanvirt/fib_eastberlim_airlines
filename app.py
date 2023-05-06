@@ -160,17 +160,17 @@ elif nav_menu == "Map Analyzer":
     with col_airline:
         st.subheader("Flights per airlins")
         max_frequency_airline=data['AIRLINE'].value_counts()
-        st.dataframe(max_frequency_airline, use_container_width=True)
+        st.dataframe(max_frequency_airline)
 
     with col_origine_port:
         st.subheader("Flights as per Origine Port")
         max_frequency_origin_port=data['ORIGIN_AIRPORT'].value_counts()
-        st.dataframe(max_frequency_origin_port, use_container_width=True)
+        st.dataframe(max_frequency_origin_port)
 
     with col_dist_port:
         st.subheader("Flights as per Destination Port")
         max_frequency_distination_port=data['DESTINATION_AIRPORT'].value_counts()
-        st.dataframe(max_frequency_distination_port, use_container_width=True)   
+        st.dataframe(max_frequency_distination_port)   
 
 elif nav_menu == "Raw Data":
     st.header("Raw data")
