@@ -91,7 +91,7 @@ if nav_menu == "Dashboard":
         st.write("Operation performance (Departure Delay)")
         df_delay_dpt = data[(data['DEPARTURE_DELAY'] < 0)]
         
-        line_chart_dpt = df_delay_dpt.copy()
+        line_chart_dpt = df_delay_dpt
         line_chart_dpt['SCHEDULED_DEPARTURE'] = pd.to_datetime(line_chart_dpt['SCHEDULED_DEPARTURE'])
         line_chart_dpt['DEPARTURE_HOUR'] = line_chart_dpt['SCHEDULED_DEPARTURE'].dt.hour
 
@@ -110,7 +110,7 @@ if nav_menu == "Dashboard":
         st.write("Opetation performance (Destination Delay)")
         df_delay_dist = data[(data['DESTINATION_DELAY'] < 0)]
 
-        line_chart_dist = df_delay_dist.copy()
+        line_chart_dist = df_delay_dist
         line_chart_dist['SCHEDULED_DESTINATION'] = pd.to_datetime(line_chart_dist['SCHEDULED_DESTINATION'])
         line_chart_dist['DESTINATION_HOUR'] = line_chart_dist['SCHEDULED_DESTINATION'].dt.hour
 
@@ -155,7 +155,7 @@ elif nav_menu == "Map Analyzer":
         ],
     ))
 
-    col_airline, col_origine_port, col_dist_port = st.columns(3)
+    '''col_airline, col_origine_port, col_dist_port = st.columns(3)
     
     with col_airline:
         st.subheader("Flights per airlins")
@@ -170,7 +170,7 @@ elif nav_menu == "Map Analyzer":
     with col_dist_port:
         st.subheader("Flights as per Destination Port")
         max_frequency_distination_port=data['DESTINATION_AIRPORT'].value_counts()
-        st.dataframe(max_frequency_distination_port)   
+        st.dataframe(max_frequency_distination_port)'''   
 
 elif nav_menu == "Raw Data":
     st.header("Raw data")
