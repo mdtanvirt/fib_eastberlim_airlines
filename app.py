@@ -4,7 +4,8 @@ import pydeck as pdk
 import streamlit as st
 import altair as alt
 import plotly.express as px
-#from streamlit_card import card
+import plotly.graph_objects as go
+from streamlit_extras.dataframe_explorer import dataframe_explorer
 from streamlit_option_menu import option_menu
 
 st.set_page_config(layout="wide")
@@ -14,7 +15,6 @@ hide_st_style = """
     <style>
     #MainMenu {visibility: hidden}
     footer {visibility: hidden}
-    header {visibility: hidden}
     </style>
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
@@ -27,7 +27,7 @@ df_airlines_frequency_count = data.groupby(['AIRLINE']).agg(
 )
 
 with st.sidebar:
-    nav_menu = option_menu("Main Menu", ["Dashboard", "Map Analyzer", 'Raw Data'], 
+    nav_menu = option_menu("Main Menu", ["Dashboard", "Map Analyzer", 'Query Analyzer', 'Raw Data'], 
         icons=['clipboard-data', 'map', 'gear'], menu_icon="cast", default_index=0)
 
 if nav_menu == "Dashboard":
@@ -171,6 +171,61 @@ elif nav_menu == "Map Analyzer":
         st.subheader("Flights as per Destination Port")
         max_frequency_distination_port=data['DESTINATION_AIRPORT'].value_counts()
         st.dataframe(max_frequency_distination_port, use_container_width=True) 
+
+########### Query Analyzer ##########
+
+elif nav_menu == 'Query Analyzer':
+    default_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY','SCHEDULED_DEPARTURE', 'SCHEDULED_DESTINATION'])
+    is_analyzer_select = st.sidebar.radio('Please select option', ('Advance Data Explore', 'Graph Analytics'))
+    if is_analyzer_select == 'Advance Data Explore':
+        filtered_data_column = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY'])
+        filtered_df = dataframe_explorer(filtered_data_column, case=False)
+        st.dataframe(filtered_df, use_container_width=True)
+
+    elif is_analyzer_select == 'Graph Analytics':
+        
+        ##########
+        df_delay_depture = default_df[(default_df['DEPARTURE_DELAY'] < 0)]
+        df_delay_depture['DEPARTURE_DELAY']=df_delay_depture['DEPARTURE_DELAY'].astype('str')
+        df_delay_depture['DEPARTURE_DELAY']=df_delay_depture['DEPARTURE_DELAY'].str.replace('-','')
+        df_delay_depture['DEPARTURE_DELAY']=df_delay_depture['DEPARTURE_DELAY'].astype('float')
+
+        df_delay_depture['SCHEDULED_DEPARTURE'] = pd.to_datetime(df_delay_depture.SCHEDULED_DEPARTURE, format='%Y-%m-%d %H:%M:%S')
+        df_delay_depture['SCHEDULED_DEPARTURE'] = pd.to_datetime(df_delay_depture.SCHEDULED_DEPARTURE, format='%H')
+        df_delay_depture['SCHEDULED_DEPARTURE'] = df_delay_depture['SCHEDULED_DEPARTURE'].dt.strftime('%H')
+
+        def plot_dpt():
+
+            df = df_delay_depture
+
+            origin_port_list = df["ORIGIN_AIRPORT"].unique().tolist()
+
+            airPort = st.sidebar.multiselect("Select Airports (You can select more airport)", origin_port_list, default=origin_port_list[0:3])
+            
+            dfs = {country: df[df["ORIGIN_AIRPORT"] == country] for country in airPort}
+
+            fig = go.Figure()
+            for country, df in dfs.items():
+                fig = fig.add_trace(go.Scatter(x=df["SCHEDULED_DEPARTURE"], y=df["DEPARTURE_DELAY"], name=country, mode='markers', marker_size=df["DEPARTURE_DELAY"], 
+                                               hovertext=df['ORIGIN_AIRPORT']))
+                
+                fig.update_layout(
+                title="Time (Hour) vs Departure Delay (in Min)",
+                xaxis_title="Duration (in Hours)",
+                yaxis_title="Time delay for departure (in Minutes)",
+                legend_title="Airport",
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+
+        plot_dpt()
+        ##########
+            
+    else:
+        st.dataframe(data)
+
+########### End of Query Analyzer ##########
 
 elif nav_menu == "Raw Data":
 
