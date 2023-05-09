@@ -233,8 +233,9 @@ elif nav_menu == 'Query Analyzer':
             sum_of_elecips_time = filter_airline_df['ELAPSED_TIME'].sum()
             st.metric(label = 'Total Airline Operation', value= total_airline_count)
             st.metric(label = 'Total Elapsed Time (in miniuts)', value= sum_of_elecips_time)
-        ###### End of filtering ######
+        ###### End ######
 
+        ##### Filter with Airlines #####
         options_airline_for_bar = default_df['AIRLINE'].unique().tolist()
         selected_options_airline_for_bar = st.multiselect('Select Airline(You can modify defailt selection)',options_airline_for_bar, default=options_airline_for_bar[0:1])
 
@@ -243,13 +244,56 @@ elif nav_menu == 'Query Analyzer':
         fig = px.bar(filter_airline__for_chart_df, x=filter_airline__for_chart_df['ORIGIN_AIRPORT'], y=[filter_airline__for_chart_df['Departure Delay'], filter_airline__for_chart_df['Destination Delay'],], barmode='group', height=400, width=1200)
 
         fig.update_layout(
-                title="Departure Delay vs Destination Delay",
+                title="Origin Port vs Departure Delay vs Destination Delay",
                 xaxis_title="Airport",
                 yaxis_title="Delay for departure (in Minutes)",
                 legend_title="Delay",
             )
 
         st.plotly_chart(fig)
+        ###### End ######
+
+        ###### Filter with origin port ######
+        col_filter_origin_port, col_filter_dest_port = st.columns(2)
+        
+        with col_filter_origin_port:
+
+            options_origin_port_for_bar = default_df['ORIGIN_AIRPORT'].unique().tolist()
+            selected_options_origin_port_for_bar = st.multiselect('Select Origin Port(You can modify defailt selection)',options_origin_port_for_bar, default=options_origin_port_for_bar[0:1])
+
+            filter_origin_port_for_chart_df = result_port_delay.query('ORIGIN_AIRPORT == @selected_options_origin_port_for_bar')
+
+            fig_origin = px.bar(filter_origin_port_for_chart_df, x=filter_origin_port_for_chart_df['AIRLINE'], y=[filter_origin_port_for_chart_df['Departure Delay'], filter_origin_port_for_chart_df['Destination Delay'],], barmode='group', height=400)
+
+            fig_origin.update_layout(
+                    title="Air Lines vs Departure Delay vs Destination Delay",
+                    xaxis_title="Airlins",
+                    yaxis_title="Delay for departure (in Minutes)",
+                    legend_title="Delay",
+                )
+
+            st.plotly_chart(fig_origin)
+        ##### End ######
+
+        ###### Filter with Destination port ######
+        with col_filter_dest_port:
+
+            options_dest_port_for_bar = default_df['DESTINATION_AIRPORT'].unique().tolist()
+            selected_options_dest_port_for_bar = st.multiselect('Select Destination Port(You can modify defailt selection)',options_dest_port_for_bar, default=options_dest_port_for_bar[0:1])
+
+            filter_dest_port_for_chart_df = result_port_delay.query('ORIGIN_AIRPORT == @selected_options_dest_port_for_bar')
+
+            fig_dest = px.bar(filter_dest_port_for_chart_df, x=filter_dest_port_for_chart_df['AIRLINE'], y=[filter_dest_port_for_chart_df['Departure Delay'], filter_dest_port_for_chart_df['Destination Delay'],], barmode='group', height=400)
+
+            fig_dest.update_layout(
+                    title="Air Lines vs Departure Delay vs Destination Delay",
+                    xaxis_title="Airlins",
+                    yaxis_title="Delay for departure (in Minutes)",
+                    legend_title="Delay",
+                )
+
+            st.plotly_chart(fig_dest)
+        ##### End ######
     
     elif is_analyzer_select == 'Advance Data Explore':
         filtered_data_column = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY'])
