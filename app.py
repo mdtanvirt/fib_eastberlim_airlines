@@ -126,7 +126,7 @@ if nav_menu == "Dashboard":
         st.write(fig)
 
 elif nav_menu == "Map Analyzer":
-    st.header("Data exploration with map")
+    st.write("**Data exploration with map**")
 
     GREEN_RGB = [0, 255, 0, 0]
     RED_RGB = [250, 100, 0, 40]
@@ -176,12 +176,12 @@ elif nav_menu == "Map Analyzer":
 
 elif nav_menu == 'Query Analyzer':
 
-    st.subheader("Advance Query Analyzed")
-
     default_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY', 'ORIGIN_AIRPORT_LAT', 'ORIGIN_AIRPORT_LON', 'DESTINATION_AIRPORT_LAT', 'DESTINATION_AIRPORT_LON'])
-    is_analyzer_select = st.sidebar.radio('Please select option', ('Matrix', 'Advance Data Explore'))
+    is_analyzer_select = st.sidebar.radio('Please select option', ('Matrix', 'GEO Map Matrix', 'Advance Data Explore'))
     
     if is_analyzer_select == 'Matrix':
+
+        st.write("**Advance Query Analyzed**")
         
         ##### delay #####
         delay_departure = default_df[(default_df['DEPARTURE_DELAY'] < 0)]
@@ -296,9 +296,125 @@ elif nav_menu == 'Query Analyzer':
         ##### End ######
     
     elif is_analyzer_select == 'Advance Data Explore':
+        st.write("**Advance Raw Data Explore**")
         filtered_data_column = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY'])
         filtered_df = dataframe_explorer(filtered_data_column, case=False)
         st.dataframe(filtered_df, use_container_width=True)
+
+    elif is_analyzer_select == 'GEO Map Matrix':
+        st.write("**GEO Map Matrix**")
+        default_map_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY', 'ORIGIN_AIRPORT_LAT', 'ORIGIN_AIRPORT_LON', 'DESTINATION_AIRPORT_LAT', 'DESTINATION_AIRPORT_LON'])
+
+        ###### Filter for GEO Map ######
+        GREEN_RGB = [0, 255, 0, 0]
+        RED_RGB = [250, 100, 0, 40]
+
+        is_filter_option = st.radio('**Filter with**', ('Origin Port', 'Airlines'), horizontal=True)
+        
+        #### With airline filter ####
+        if is_filter_option == "Origin Port":
+
+            col_map_filter, col_sum_trip = st.columns([3, 1])
+
+            with col_map_filter:
+
+                options_for_airline = data['ORIGIN_AIRPORT'].unique().tolist()
+                selected_options_airlines = st.multiselect('Select Origin Port(You can modify defailt selection)',options_for_airline, default=options_for_airline[0:3])
+
+                filter_airline_df = default_df.query('ORIGIN_AIRPORT == @selected_options_airlines')
+
+                st.pydeck_chart(pdk.Deck(
+                    map_style=None,
+                    initial_view_state=pdk.ViewState(
+                        latitude=38.5260,
+                        longitude=-115.766,
+                        zoom=2,
+                        pitch=2,
+                    ),
+                    layers=[
+                        pdk.Layer(
+                        "GreatCircleLayer",
+                        data=filter_airline_df,
+                        pickable=True,
+                        get_stroke_width=20,
+                        get_source_position=["ORIGIN_AIRPORT_LON", "ORIGIN_AIRPORT_LAT"],
+                        get_target_position=["DESTINATION_AIRPORT_LON", "DESTINATION_AIRPORT_LAT"],
+                        get_source_color=RED_RGB,
+                        get_target_color=GREEN_RGB,
+                        auto_highlight=True,
+                        ),
+                    ],
+                ))
+
+            with col_sum_trip:
+                total_airline_count = filter_airline_df['ORIGIN_AIRPORT'].value_counts().sum()
+                sum_of_origin_elepsed = filter_airline_df['ELAPSED_TIME'].sum()
+                sum_of_dept_delay = filter_airline_df['DEPARTURE_DELAY'].sum()
+                sum_of_dest_delay = filter_airline_df['DESTINATION_DELAY'].sum()
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.metric(label = 'Total Flight from this port', value= total_airline_count)
+                st.metric(label = 'Total Elepsed time in this root (Minitus)', value= sum_of_origin_elepsed)
+                st.metric(label = 'Total Origon Delay time in this root (Minitus)', value= sum_of_dept_delay)
+                st.metric(label = 'Total Destination Delay in this root (Minitus)', value= sum_of_dest_delay)
+        ###### End #####
+        #### With airline filter ####
+        elif is_filter_option == "Airlines":
+            #st.write("asdas")
+
+            col_map_filter, col_sum_trip = st.columns([3, 1])
+
+            with col_map_filter:
+
+                options_for_airline = data['AIRLINE'].unique().tolist()
+                selected_options_airlines = st.multiselect('Select Origin Port(You can modify defailt selection)',options_for_airline, default=options_for_airline[0:3])
+
+                filter_airline_df = default_df.query('AIRLINE == @selected_options_airlines')
+
+                st.pydeck_chart(pdk.Deck(
+                    map_style=None,
+                    initial_view_state=pdk.ViewState(
+                        latitude=38.5260,
+                        longitude=-115.766,
+                        zoom=2,
+                        pitch=2,
+                    ),
+                    layers=[
+                        pdk.Layer(
+                        "GreatCircleLayer",
+                        data=filter_airline_df,
+                        pickable=True,
+                        get_stroke_width=20,
+                        get_source_position=["ORIGIN_AIRPORT_LON", "ORIGIN_AIRPORT_LAT"],
+                        get_target_position=["DESTINATION_AIRPORT_LON", "DESTINATION_AIRPORT_LAT"],
+                        get_source_color=RED_RGB,
+                        get_target_color=GREEN_RGB,
+                        auto_highlight=True,
+                        ),
+                    ],
+                ))
+
+            with col_sum_trip:
+                total_airline_count = filter_airline_df['ORIGIN_AIRPORT'].value_counts().sum()
+                sum_of_origin_elepsed = filter_airline_df['ELAPSED_TIME'].sum()
+                sum_of_dept_delay = filter_airline_df['DEPARTURE_DELAY'].sum()
+                sum_of_dest_delay = filter_airline_df['DESTINATION_DELAY'].abs().sum()
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.metric(label = 'Total No. of Flight', value= total_airline_count)
+                st.metric(label = 'Total Elepsed time (Minitus)', value= sum_of_origin_elepsed)
+                st.metric(label = 'Total Origon Delay time (Minitus)', value= sum_of_dept_delay)
+                st.metric(label = 'Total Destination Delay (Minitus)', value= sum_of_dest_delay)
+        ###### End #####
+            
 
     elif is_analyzer_select == 'Graph Analytics':
         
