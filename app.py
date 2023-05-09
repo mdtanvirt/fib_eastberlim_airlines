@@ -175,9 +175,75 @@ elif nav_menu == "Map Analyzer":
 ########### Query Analyzer ##########
 
 elif nav_menu == 'Query Analyzer':
-    default_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY','SCHEDULED_DEPARTURE', 'SCHEDULED_DESTINATION'])
-    is_analyzer_select = st.sidebar.radio('Please select option', ('Advance Data Explore', 'Graph Analytics'))
-    if is_analyzer_select == 'Advance Data Explore':
+    default_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY', 'ORIGIN_AIRPORT_LAT', 'ORIGIN_AIRPORT_LON', 'DESTINATION_AIRPORT_LAT', 'DESTINATION_AIRPORT_LON'])
+    is_analyzer_select = st.sidebar.radio('Please select option', ('Matrix', 'Advance Data Explore', 'Graph Analytics'))
+    
+    if is_analyzer_select == 'Matrix':
+        
+        ##### delay #####
+        delay_departure = default_df[(default_df['DEPARTURE_DELAY'] < 0)]
+        df_delay_destination = default_df[(default_df['DESTINATION_DELAY'] < 0)]
+
+        delay_departure['DEPARTURE_DELAY'] = delay_departure['DEPARTURE_DELAY'].abs()
+        df_delay_destination['DESTINATION_DELAY'] = df_delay_destination['DESTINATION_DELAY'].abs()
+
+        convert_departure = delay_departure.assign(CONV_DPTUR=delay_departure['DEPARTURE_DELAY'])
+        convert_destination = df_delay_destination.assign(CONV_DEST=df_delay_destination['DESTINATION_DELAY'])
+
+        result_port_delay = pd.concat([default_df['AIRLINE'], convert_departure['ORIGIN_AIRPORT'], convert_departure['CONV_DPTUR'], convert_destination['DESTINATION_AIRPORT'], convert_destination['CONV_DEST'], default_df['ELAPSED_TIME'], default_df['ORIGIN_AIRPORT_LAT'], default_df['ORIGIN_AIRPORT_LON'], default_df['DESTINATION_AIRPORT_LAT'], default_df['DESTINATION_AIRPORT_LON']], axis=1, join='inner')
+        result_port_delay = result_port_delay.rename(columns={'CONV_DPTUR': 'Departure Delay', 'CONV_DEST': 'Destination Delay'})
+        #st.write(result_port_delay)
+
+        ###### Filtering feature #####
+        #select_option = st.radio("Filter with: ",('Airport', 'Airlines'), horizontal=True)
+
+        #if select_option == "Airport":
+                
+        col_origin_count, col_destination_count, col_airline_count = st.columns(3)
+            
+        with col_origin_count:
+            options_origin_port = result_port_delay['ORIGIN_AIRPORT'].unique().tolist()
+            selected_options_origin = st.multiselect('Select Origin Airport(You can modify defailt selection)',options_origin_port, default=options_origin_port[0:3])
+
+            filter_origin_df = result_port_delay.query('ORIGIN_AIRPORT == @selected_options_origin')
+            total_origin_flight = filter_origin_df['ORIGIN_AIRPORT'].value_counts().sum()
+            sum_of_origin_delay = filter_origin_df['Departure Delay'].sum()
+            st.metric(label = 'Total Flight in Origin Airport', value= total_origin_flight)
+            st.metric(label = 'Total delay at Origin Airport (in miniuts)', value= sum_of_origin_delay)
+                        
+        with col_destination_count:
+            options_destination_port = result_port_delay['DESTINATION_AIRPORT'].unique().tolist()
+            selected_options_destination = st.multiselect('Select Destination Airport(You can modify defailt selection)',options_destination_port, default=options_destination_port[0:3])
+
+            filter_destination_df = result_port_delay.query('DESTINATION_AIRPORT == @selected_options_destination')
+            total_distation_flight = filter_destination_df['DESTINATION_AIRPORT'].value_counts().sum()
+            sum_of_destination_delay = filter_destination_df['Destination Delay'].sum()
+            st.metric(label = 'Total Flight in Destination Airport', value= total_distation_flight)
+            st.metric(label = 'Total delay at Destination Airport (in miniuts)', value= sum_of_destination_delay)
+            
+        with col_airline_count:
+            options_airline = result_port_delay['AIRLINE'].unique().tolist()
+            selected_options_airline = st.multiselect('Select Destination Airline(You can modify defailt selection)',options_airline, default=options_airline[0:3])
+
+            filter_airline_df = result_port_delay.query('AIRLINE == @selected_options_airline')
+            total_airline_count = filter_airline_df['AIRLINE'].value_counts().sum()
+            sum_of_elecips_time = filter_airline_df['ELAPSED_TIME'].sum()
+            st.metric(label = 'Total Airline Operation', value= total_airline_count)
+            st.metric(label = 'Total Elapsed Time (in miniuts)', value= sum_of_elecips_time)
+        ###### End of filtering ######
+
+        fig = px.bar(result_port_delay, x=result_port_delay['ORIGIN_AIRPORT'], y=[result_port_delay['Departure Delay'], result_port_delay['Destination Delay'],], barmode='group', height=400, width=1200)
+
+        fig.update_layout(
+                title="Departure Delay vs Destination Delay",
+                xaxis_title="Airport",
+                yaxis_title="Delay for departure (in Minutes)",
+                legend_title="Delay",
+            )
+
+        st.plotly_chart(fig)
+    
+    elif is_analyzer_select == 'Advance Data Explore':
         filtered_data_column = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY'])
         filtered_df = dataframe_explorer(filtered_data_column, case=False)
         st.dataframe(filtered_df, use_container_width=True)
