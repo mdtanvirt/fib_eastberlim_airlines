@@ -281,7 +281,7 @@ elif nav_menu == 'Query Analyzer':
             options_dest_port_for_bar = default_df['DESTINATION_AIRPORT'].unique().tolist()
             selected_options_dest_port_for_bar = st.multiselect('Select Destination Port(You can modify defailt selection)',options_dest_port_for_bar, default=options_dest_port_for_bar[0:1])
 
-            filter_dest_port_for_chart_df = result_port_delay.query('ORIGIN_AIRPORT == @selected_options_dest_port_for_bar')
+            filter_dest_port_for_chart_df = result_port_delay.query('DESTINATION_AIRPORT == @selected_options_dest_port_for_bar')
 
             fig_dest = px.bar(filter_dest_port_for_chart_df, x=filter_dest_port_for_chart_df['AIRLINE'], y=[filter_dest_port_for_chart_df['Departure Delay'], filter_dest_port_for_chart_df['Destination Delay'],], barmode='group', height=400)
 
