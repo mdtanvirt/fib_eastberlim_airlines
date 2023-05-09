@@ -175,8 +175,11 @@ elif nav_menu == "Map Analyzer":
 ########### Query Analyzer ##########
 
 elif nav_menu == 'Query Analyzer':
+
+    st.subheader("Advance Query Analyzed")
+
     default_df = pd.DataFrame(data, columns=['AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_TIME', 'ELAPSED_TIME', 'DEPARTURE_DELAY', 'DESTINATION_DELAY', 'ORIGIN_AIRPORT_LAT', 'ORIGIN_AIRPORT_LON', 'DESTINATION_AIRPORT_LAT', 'DESTINATION_AIRPORT_LON'])
-    is_analyzer_select = st.sidebar.radio('Please select option', ('Matrix', 'Advance Data Explore', 'Graph Analytics'))
+    is_analyzer_select = st.sidebar.radio('Please select option', ('Matrix', 'Advance Data Explore'))
     
     if is_analyzer_select == 'Matrix':
         
@@ -223,7 +226,7 @@ elif nav_menu == 'Query Analyzer':
             
         with col_airline_count:
             options_airline = result_port_delay['AIRLINE'].unique().tolist()
-            selected_options_airline = st.multiselect('Select Destination Airline(You can modify defailt selection)',options_airline, default=options_airline[0:3])
+            selected_options_airline = st.multiselect('Select Airline(You can modify defailt selection)',options_airline, default=options_airline[0:3])
 
             filter_airline_df = result_port_delay.query('AIRLINE == @selected_options_airline')
             total_airline_count = filter_airline_df['AIRLINE'].value_counts().sum()
@@ -232,7 +235,12 @@ elif nav_menu == 'Query Analyzer':
             st.metric(label = 'Total Elapsed Time (in miniuts)', value= sum_of_elecips_time)
         ###### End of filtering ######
 
-        fig = px.bar(result_port_delay, x=result_port_delay['ORIGIN_AIRPORT'], y=[result_port_delay['Departure Delay'], result_port_delay['Destination Delay'],], barmode='group', height=400, width=1200)
+        options_airline_for_bar = default_df['AIRLINE'].unique().tolist()
+        selected_options_airline_for_bar = st.multiselect('Select Airline(You can modify defailt selection)',options_airline_for_bar, default=options_airline_for_bar[0:1])
+
+        filter_airline__for_chart_df = result_port_delay.query('AIRLINE == @selected_options_airline_for_bar')
+
+        fig = px.bar(filter_airline__for_chart_df, x=filter_airline__for_chart_df['ORIGIN_AIRPORT'], y=[filter_airline__for_chart_df['Departure Delay'], filter_airline__for_chart_df['Destination Delay'],], barmode='group', height=400, width=1200)
 
         fig.update_layout(
                 title="Departure Delay vs Destination Delay",
